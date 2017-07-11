@@ -34,8 +34,8 @@ class ResponseLoggerMiddleware
         if( !file_exists($path)){
             mkdir($path, 0777, true);
         }
-        $s = 'Duration:  ' .number_format($this->end-$_SERVER['REQUEST_TIME_FLOAT'], 3);
-        $s = $s.'URL: '. $request->fullUrl()."\n";
+        $s = 'Duration,'.number_format($this->end-$_SERVER['REQUEST_TIME_FLOAT'], 5);
+        $s = $s.',URL,'. $request->fullUrl()."\n";
         $file = fopen($path.DIRECTORY_SEPARATOR."response-".date('Y-m-d'), "a");
         fwrite($file, $s);
     }
