@@ -13,39 +13,30 @@ use Route;
 class ResponseLoggerMiddleware
 {
     use DispatchesJobs;
+    public function handle($request, Closure $next)
+     {
+        $this->start = microtime(true);
 
-    public function handle(Request $request, Closure $next)
-    {
         return $next($request);
     }
 
-    public function terminate(Request $request, Response $response)
+    public function terminate($request, $response)
     {
-        // For some reason $request->route() returns null...        
-/*        $currentRoute = Route::getCurrentRoute();
+        $this->end = microtime(true);
 
-        \Log::debug($currentRoute->getPath(). " ". print_r($currentRoute->getMethods(), true));
-*/
-
-        if(!$this->excluded($request)) {                    
-            $task = new LogTask($request, $response);
-
-            if($queueName = config('request-logger.queue')) {
-                $this->dispatch(is_string($queueName) ? $task->onQueue($queueName) : $task);
-            } else {
-                $task->handle();
-            }
-        }
+        $this->log($request);
     }
 
-    protected function excluded(Request $request) {
-        $exclude = config('request-logger.exclude');
-        if($exclude){
-            foreach($exclude as $path) {
-                if($request->is($path)) return true;
-            }
-        }
+    protected function log($request)
+    {
+      $path = storage_path("framework".DIRECTORY_SEPARATOR."temp");
 
-        return false;
+        if( !file_exists($path)){
+            mkdir($path, 0777, true);
+        }
+        $s = 'Duration:  ' .number_format($this->end-$_SERVER['REQUEST_TIME_FLOAT'], 3);
+        $s = $s.'URL: '. $request->fullUrl()."\n";
+        $file = fopen($path.DIRECTORY_SEPARATOR."response-".date('Y-m-d'), "a");
+        fwrite($file, $s);
     }
 }
