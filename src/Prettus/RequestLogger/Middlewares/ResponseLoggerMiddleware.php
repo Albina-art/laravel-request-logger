@@ -29,7 +29,7 @@ class ResponseLoggerMiddleware
 
     protected function log($request)
     {
-        $path = storage_path("framework".DIRECTORY_SEPARATOR);
+        $path = storage_path("logs".DIRECTORY_SEPARATOR."time_work");
 
         if( !file_exists($path)){
             mkdir($path, 0777, true);
